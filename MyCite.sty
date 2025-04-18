@@ -1,0 +1,54 @@
+%% REFERENCIAS DE ALTERAÇÃO
+%https://groups.google.com/g/latex-br/c/VnEE9MxAenE
+%https://github.com/abntex/abntex2/blob/master/tex/latex/abntex2/abntex2cite.sty#L654 
+ 
+ \renewcommand{\@cite}[2]%
+    {\citeopen{#1\ifthenelse{\equal{#2}{}}{}{,
+          {\optionaltextstyle#2}}}\citeclose}
+  
+  \DeclareRobustCommand{\cite}[2][]{%
+  %
+    \leavevmode
+    \let\@citeprevious\@empty%
+    \@cite{%
+      \@for\@citekey:=#2\do%  \@citekey contains the key
+        {%
+         \edef\@citekey{\expandafter\@firstofone\@citekey\@empty}%
+         %
+         % here, a tricky \let\@citename\"b@\@citekey++IMPL"
+         \expandafter\let\expandafter\@citename%             
+             \csname b@\@citekey++EXPL\endcsname%
+         \expandafter\let\expandafter\@citeyear%
+             \csname b@\@citekey++YEAR\endcsname%
+         \ifx\@citeprevious\@empty%
+         \else%
+           \ifx\@citename\@citeprevious%
+              \ABCIcitecommadefault% echoing ", "
+           \else%
+              \ABCIcitecolondefault% echoing "; "
+           \fi%
+         \fi%
+         % writing on aux file
+         \if@filesw\immediate\write\@auxout{\string\citation{\@citekey}}\fi%
+         % if undefined bibitem
+         \@ifundefined{b@\@citekey++IMPL}%
+           {% if undefined
+               {\bfseries??}% echoing ?
+            \G@refundefinedtrue%
+            \@latex@warning%
+              {Citation `\@citekey' on page \thepage \space undefined}%
+           }%
+           {% if already defined
+             \ifx\@citename\@citeprevious%
+               {\yearstyle\@citeyear\@}\@%
+             \else%
+               {\authorstyle\@citename}, %
+               {\yearstyle\@citeyear\@}%
+             \fi%
+             \let\@citeprevious\@citename%
+           }%
+           \ifthenelse{\boolean{ABNTbackref}}{\Hy@backout{#2}}{}% By AWSS: put backref
+        }% end for
+    }{#1}%
+  }
+  
